@@ -10,15 +10,15 @@ if (process.env.NODE_ENV === "production") {
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import http from "http"; // নতুন ইমপোর্ট (Socket.io এর জন্য)
-import { Server } from "socket.io"; // নতুন ইমপোর্ট
+import http from "http";
+import { Server } from "socket.io";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js"; // নতুন চ্যাট রাউট
-import bookingRoutes from "./routes/bookingRoutes.js"; // ⬅️ নতুন বুকিং রাউট
+import chatRoutes from "./routes/chatRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import logger from "./middlewares/logger.js";
 import { errorHandler, notFound } from "./middlewares/errorMiddleware.js";
-import { setupSocket } from "./socket/socket.js"; // নতুন সকেট হ্যান্ডলার
+import { setupSocket } from "./socket/socket.js";
 
 console.log("🚀 Starting server...");
 const app = express();
@@ -26,11 +26,14 @@ connectDB();
 app.set("trust proxy", 1);
 
 // =========================================
-// CORS Configuration
+// CORS Configuration (কোডেই লিংক বসানো হলো)
 // =========================================
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: [
+      "http://localhost:5173", 
+      "https://smart-biz-suite-react-js.vercel.app" // আপনার ভেরসেলের লিংক
+    ],
     credentials: true,
     methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -49,18 +52,9 @@ app.use(cookieParser());
 console.log("✅ Middleware configured");
 
 // =========================================
-// Cloudinary Status Check
-// =========================================
-console.log("🔍 Cloudinary Status:");
-console.log(`  Name: ${process.env.CLOUDINARY_CLOUD_NAME || "❌ Not set"}`);
-console.log(`  Key: ${process.env.CLOUDINARY_API_KEY ? "✅ Set" : "❌ Missing"}`);
-console.log(`  Secret: ${process.env.CLOUDINARY_API_SECRET ? "✅ Set" : "❌ Missing"}`);
-
-// =========================================
 // Root Route
 // =========================================
 app.get("/", (req, res) => {
-  console.log("🏠 Root endpoint hit");
   res.send("🚀 API is running...");
 });
 
@@ -68,8 +62,8 @@ app.get("/", (req, res) => {
 // Routes Configuration
 // =========================================
 app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes); // চ্যাট রাউট যুক্ত করা হলো
-app.use("/api/bookings", bookingRoutes); // ⬅️ বুকিং রাউট যুক্ত করা হলো
+app.use("/api/chat", chatRoutes);
+app.use("/api/bookings", bookingRoutes);
 console.log("✅ Routes configured");
 
 // =========================================
@@ -82,14 +76,9 @@ app.use(errorHandler);
 // HTTP Server & Socket.io Setup
 // =========================================
 const PORT = process.env.PORT || 5000;
-
-// Express app কে HTTP server-এ র‍্যাপ করা হলো
 const server = http.createServer(app);
-
-// Socket.io সেটআপ ফাংশন কল করা হলো
 setupSocket(server);
 
-// সার্ভার স্টার্ট
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 http://localhost:${PORT}`);
