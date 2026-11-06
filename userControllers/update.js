@@ -1,4 +1,3 @@
-
 import asyncHandler from "express-async-handler";
 import User from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
@@ -17,6 +16,11 @@ export const updateProfile = asyncHandler(async (req, res) => {
 
   // Update name
   user.name = req.body.name || user.name;
+
+  // Update profilePic (Cartoon Animal Emoji)
+  if (req.body.profilePic !== undefined) {
+    user.profilePic = req.body.profilePic;
+  }
 
   // Check email uniqueness if changing email
   if (req.body.email && req.body.email !== user.email) {
@@ -62,6 +66,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
     name: updatedUser.name,
     email: updatedUser.email,
     role: updatedUser.role,
+    profilePic: updatedUser.profilePic, // রেসপন্সে প্রোফাইল পিক পাঠানো হলো
     token,
   });
 });

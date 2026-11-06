@@ -10,15 +10,19 @@ if (process.env.NODE_ENV === "production") {
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import http from "http"; // নতুন ইমপোর্ট (Socket.io এর জন্য)
+import { Server } from "socket.io"; // নতুন ইমপোর্ট
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js"; // নতুন চ্যাট রাউট
+import bookingRoutes from "./routes/bookingRoutes.js"; // ⬅️ নতুন বুকিং রাউট
 import logger from "./middlewares/logger.js";
 import { errorHandler, notFound } from "./middlewares/errorMiddleware.js";
+import { setupSocket } from "./socket/socket.js"; // নতুন সকেট হ্যান্ডলার
 
 console.log("🚀 Starting server...");
 const app = express();
 connectDB();
-// server.js — connectDB() এর পরে যোগ করুন
 app.set("trust proxy", 1);
 
 // =========================================
@@ -61,9 +65,11 @@ app.get("/", (req, res) => {
 });
 
 // =========================================
-// User Routes
+// Routes Configuration
 // =========================================
 app.use("/api/users", userRoutes);
+app.use("/api/chat", chatRoutes); // চ্যাট রাউট যুক্ত করা হলো
+app.use("/api/bookings", bookingRoutes); // ⬅️ বুকিং রাউট যুক্ত করা হলো
 console.log("✅ Routes configured");
 
 // =========================================
@@ -73,16 +79,19 @@ app.use(notFound);
 app.use(errorHandler);
 
 // =========================================
-// Start Server
+// HTTP Server & Socket.io Setup
 // =========================================
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// Express app কে HTTP server-এ র‍্যাপ করা হলো
+const server = http.createServer(app);
+
+// Socket.io সেটআপ ফাংশন কল করা হলো
+setupSocket(server);
+
+// সার্ভার স্টার্ট
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 http://localhost:${PORT}`);
+  console.log(`🔌 Socket.io ready and listening`);
 });
-
-
-
-
-
-
