@@ -32,7 +32,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", 
-      "https://smart-biz-suite-react-js.vercel.app" // আপনার ভেরসেলের লিংক
+      "https://smart-biz-suite-react-js.vercel.app",
+       "https://installgazi.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
